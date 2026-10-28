@@ -1,0 +1,78 @@
+provider "aws" {
+    region = "ap-south-1"    
+  
+}
+
+#----VPC Creation----#
+
+resource "aws_vpc" "taskone" {
+    cidr_block = "192.168.0.0/16"
+
+    tags = {
+        Name = "TaskOneVPC"
+        Environment = "QA"
+        Project = "Terraform"
+    }
+  
+}
+
+#----Subnets Creation----#
+
+resource "aws_subnet" "taskone_subnetA" {
+    vpc_id     = aws_vpc.taskone.id
+    cidr_block = "192.168.1.0/24"
+    availability_zone = "ap-south-1a"
+
+    tags = {
+        Name = "TaskOneSubnetA"
+       
+    }
+}
+resource "aws_subnet" "taskone_subnetB" {
+    vpc_id     = aws_vpc.taskone.id
+    cidr_block = "192.168.2.0/24"
+    availability_zone = "ap-south-1b"
+
+    tags = {
+        Name = "TaskOneSubnetB"
+       
+    }
+}
+
+#----SERVER A CREATION----#
+
+resource "aws_instance" "instanceA" {
+  ami           = "ami-022374b883d9d7931"
+  instance_type = "t3.micro"
+  subnet_id     = aws_subnet.taskone_subnetA.id
+  key_name      = "A_EC2"
+  availability_zone = "ap-south-1a"
+
+tags = {
+    Name = "TaskOneInstanceA"
+    Environment = "QA"
+    Project = "Terraform"
+  }
+  /*lifecycle {
+    prevent_destroy = true
+    ignore_changes = [tags["Name"]]
+  }*/
+}
+#----SERVER B CREATION----#
+resource "aws_instance" "instanceB" {
+  ami           = "ami-022374b883d9d7931"
+  instance_type = "t3.micro"
+  subnet_id     = aws_subnet.taskone_subnetB.id
+  key_name      = "A_EC2"
+  availability_zone = "ap-south-1b"
+
+  tags = {
+    Name = "TaskOneInstanceB"
+    Environment = "QA"
+    Project = "Terraform"
+  }
+  /*lifecycle {
+   prevent_destroy = true
+   ignore_changes = [tags["Name"]]
+  }*/
+}
